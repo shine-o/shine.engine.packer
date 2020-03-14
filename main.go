@@ -4,8 +4,7 @@ import (
 	"github.com/shine-o/shine.engine.packer/cmd"
 )
 
-func main()  {
+func main() {
 	// load file data
 	cmd.Execute()
-
 }
