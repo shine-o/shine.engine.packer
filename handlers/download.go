@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/google/logger"
 	"github.com/spf13/cobra"
@@ -10,14 +11,19 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 )
 
 var log * logger.Logger
 
+func init()  {
+	log = logger.Init("download logger", true, true, ioutil.Discard)
+}
+
 func Download(cmd *cobra.Command, args []string)  {
-	log = logger.Init("DownloadLogger", true, true, ioutil.Discard)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	if err := cmd.Flags().Parse(args); err != nil {
 		log.Fatal(err)
@@ -58,7 +64,7 @@ func Download(cmd *cobra.Command, args []string)  {
 		log.Fatalf("no gdp #ROOT found")
 	}
 
-	destinationPath, _ := cmd.Flags().GetString("destination-path")
+	destinationPath, _ := cmd.Flags().GetString("destination")
 	destinationPath, err = filepath.Abs(destinationPath)
 	overwrite, _ := cmd.Flags().GetBool("overwrite")
 
@@ -68,21 +74,85 @@ func Download(cmd *cobra.Command, args []string)  {
 		}
 	}
 
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	dc := &DownloadCmd{
+		Overwrite:   overwrite,
+		DownloadPath: destinationPath,
+		ExtractPath: destinationPath,
+	}
 	wg := new(sync.WaitGroup)
 
 	for _, r := range resources {
 		wg.Add(1)
-		dst, _ := filepath.Abs(fmt.Sprintf("%v/%v", destinationPath, r))
-		gdpUri := fmt.Sprintf("%v/%v", gdpRoot, r)
-		fmt.Println(gdpUri)
-		go downloadFile(wg, dst, gdpUri, overwrite)
+		uri := fmt.Sprintf("%v/%v", gdpRoot, r)
+		go dc.download(wg, uri, r)
 	}
 	wg.Wait()
 }
 
+type DownloadCmd struct {
+	Overwrite bool
+	Extract bool
+	DownloadPath string
+	ExtractPath string
+}
+
+func (dc *DownloadCmd) download(wg * sync.WaitGroup, uri, fileName string) {
+	log.Infof("downloading file from %v", uri)
+	defer wg.Done()
+
+	path, _ := filepath.Abs(fmt.Sprintf("%v/%v", dc.DownloadPath, fileName))
+	_, err := os.Stat(path)
+	if err == nil {
+		if !dc.Overwrite {
+			log.Infof("file %v already exists, skipping.", path)
+			return
+		}
+	}
+	if os.IsNotExist(err) {
+		r, err := http.Get(uri)
+		defer r.Body.Close()
+
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		if r.StatusCode == 404 {
+			log.Error("bad request  with status code %v for file %v", r.StatusCode, fileName)
+			return
+		}
+
+		dc.persist(path, r.Body)
+	} else {
+		log.Error(err)
+	}
+}
+
+func (dc *DownloadCmd) persist(path string, body io.Reader) {
+	defer logOperation(fmt.Sprintf("persisted file  %v", path))
+	out, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0700)
+	defer out.Close()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	if _, err = io.Copy(out, body); err != nil {
+		log.Error(err)
+		return
+	}
+}
+
+func logOperation(msg string){
+	log.Info(msg)
+}
+
 func  downloadPatchList(filePath string, url string) error {
 	// Get the data
-	log.Infof("downloading file %v  at destination %v",url, filePath)
+	defer logOperation(fmt.Sprintf("downloading file %v  at destination %v",url, filePath))
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -98,44 +168,4 @@ func  downloadPatchList(filePath string, url string) error {
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	return err
-}
-
-func downloadFile(wg * sync.WaitGroup, filePath string, url string, overwrite bool) {
-	defer wg.Done()
-	if _, err := os.Stat(filePath); err == nil {
-		// file exists
-		if !overwrite {
-			log.Infof("file %v already exists, skipping.", filePath)
-
-			return
-		}
-
-	} else if os.IsNotExist(err) {
-		//if os.IsNotExist(err) {
-			// Get the data
-			resp, err := http.Get(url)
-			log.Infof("downloading file %v  at destination %v",url, filePath)
-
-			if err != nil {
-				log.Error(err)
-				return
-			}
-
-			defer resp.Body.Close()
-
-			if out, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0700); err != nil {
-				log.Error(err)
-			} else {
-
-				defer out.Close()
-
-				// Write the body to file
-				if _, err = io.Copy(out, resp.Body); err != nil {
-					log.Error(err)
-				}
-			}
-		//}
-	} else {
-		log.Error(err)
-	}
 }

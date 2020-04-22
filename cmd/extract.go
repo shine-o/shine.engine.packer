@@ -23,17 +23,17 @@ import (
 )
 
 // downloadCmd represents the download command
-var downloadCmd = &cobra.Command{
-	Use:   "download",
-	Short: "Download .gdp files which contain patch data",
-	Run: handlers.Download,
+var extractCmd = &cobra.Command{
+	Use:   "extract",
+	Short: "Extract .gdp files into separate folders",
+	Run: handlers.Extract,
 
 }
 
 func init() {
-	rootCmd.AddCommand(downloadCmd)
+	rootCmd.AddCommand(extractCmd)
 
-	err := doc.GenMarkdownTree(downloadCmd, "doc")
+	err := doc.GenMarkdownTree(extractCmd, "doc")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,9 +42,8 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 
-	downloadCmd.PersistentFlags().String("patch-hive", "http://patch.cdn.gamigo.com/fo/es/PatchHive.txt", "list of .gdp files, e.g: PatchHive.txt, http://patch.cdn.gamigo.com/fous/gdp/PatchHive.txt")
-	downloadCmd.PersistentFlags().String("destination", "./downloaded", "Path on system where downloaded .gdp files should be persisted")
-	downloadCmd.PersistentFlags().Bool("overwrite", false, "Download and replace if the file already exists")
+	extractCmd.PersistentFlags().String("source", "./downloaded", "path where raw .gdp files are stored (default is ./downloaded)")
+	extractCmd.PersistentFlags().String("destination", "./extracted", "path where extracted data should be stored (default is ./extracted)")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
