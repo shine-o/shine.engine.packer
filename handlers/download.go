@@ -121,8 +121,8 @@ func (dc *DownloadCmd) download(wg * sync.WaitGroup, uri, fileName string) {
 			return
 		}
 
-		if r.StatusCode == 404 {
-			log.Error("bad request  with status code %v for file %v", r.StatusCode, fileName)
+		if r.StatusCode >= 400  {
+			log.Errorf("bad request  with status code %v for file %v", r.StatusCode, fileName)
 			return
 		}
 

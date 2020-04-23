@@ -42,7 +42,7 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 
-	downloadCmd.PersistentFlags().String("patch-hive", "http://patch.cdn.gamigo.com/fo/es/PatchHive.txt", "list of .gdp files, e.g: PatchHive.txt, http://patch.cdn.gamigo.com/fous/gdp/PatchHive.txt")
+	downloadCmd.PersistentFlags().String("patch-hive", "http://patch.cdn.gamigo.com/fo/fr/PatchHive.txt", "list of .gdp files, e.g: PatchHive.txt, http://patch.cdn.gamigo.com/fous/gdp/PatchHive.txt")
 	downloadCmd.PersistentFlags().String("destination", "./downloaded", "Path on system where downloaded .gdp files should be persisted")
 	downloadCmd.PersistentFlags().Bool("overwrite", false, "Download and replace if the file already exists")
 

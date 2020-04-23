@@ -16,7 +16,7 @@ packer download [flags]
       --destination string   Path on system where downloaded .gdp files should be persisted (default "./downloaded")
   -h, --help                 help for download
       --overwrite            Download and replace if the file already exists
-      --patch-hive string    list of .gdp files, e.g: PatchHive.txt, http://patch.cdn.gamigo.com/fous/gdp/PatchHive.txt (default "http://patch.cdn.gamigo.com/fo/es/PatchHive.txt")
+      --patch-hive string    list of .gdp files, e.g: PatchHive.txt, http://patch.cdn.gamigo.com/fous/gdp/PatchHive.txt (default "http://patch.cdn.gamigo.com/fo/fr/PatchHive.txt")
 ```
 
 ### Options inherited from parent commands
