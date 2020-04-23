@@ -18,8 +18,6 @@ package cmd
 import (
 	"github.com/shine-o/shine.engine.packer/handlers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
-	"log"
 )
 
 // downloadCmd represents the download command
@@ -32,11 +30,6 @@ var extractCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(extractCmd)
-
-	err := doc.GenMarkdownTree(extractCmd, "doc")
-	if err != nil {
-		log.Fatal(err)
-	}
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

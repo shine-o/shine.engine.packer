@@ -18,8 +18,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
-	"log"
 	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -60,10 +58,6 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	err := doc.GenMarkdownTree(rootCmd, "doc")
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 // initConfig reads in config file and ENV variables if set.
