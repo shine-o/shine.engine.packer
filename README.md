@@ -3,8 +3,6 @@
 
 > utility for handling .gdp files.
 
-
-
 CDNs: 
 
 * US: http://patch.cdn.gamigo.com/fous/gdp/PatchHive.txt
