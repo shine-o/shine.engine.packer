@@ -6,3 +6,5 @@ extracted
 downloaded.*
 packer.exe
 *.exe
+*.shn
+*.shmd

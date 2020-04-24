@@ -5,6 +5,5 @@ import (
 )
 
 func main() {
-	// load file data
 	cmd.Execute()
 }

@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 var log * logger.Logger
@@ -89,6 +90,7 @@ func Download(cmd *cobra.Command, args []string)  {
 		wg.Add(1)
 		uri := fmt.Sprintf("%v/%v", gdpRoot, r)
 		go dc.download(wg, uri, r)
+		time.Sleep(time.Millisecond * 200)
 	}
 	wg.Wait()
 }
@@ -122,7 +124,7 @@ func (dc *DownloadCmd) download(wg * sync.WaitGroup, uri, fileName string) {
 		}
 
 		if r.StatusCode >= 400  {
-			log.Errorf("bad request  with status code %v for file %v", r.StatusCode, fileName)
+			log.Errorf("bad request  with status code %v for file %v", r.StatusCode, uri)
 			return
 		}
 

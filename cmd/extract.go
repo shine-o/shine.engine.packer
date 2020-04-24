@@ -37,6 +37,9 @@ func init() {
 
 	extractCmd.PersistentFlags().String("source", "./downloaded", "path where raw .gdp files are stored (default is ./downloaded)")
 	extractCmd.PersistentFlags().String("destination", "./extracted", "path where extracted data should be stored (default is ./extracted)")
+	//extractCmd.PersistentFlags().Bool("accumulative", false, "Store files in a single location, similar to building a client but without the base (installer files) (default is false")
+	extractCmd.PersistentFlags().Bool("server-files", false, "Store potential server files(if found) in a separate location (default is false")
+	extractCmd.PersistentFlags().String("server-files-path", "./potential-server-files", "Location where to store potential server files (if found) in a separate location (default is false")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
